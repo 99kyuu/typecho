@@ -125,6 +125,7 @@ CREATE TABLE `typecho_options` (
 CREATE TABLE `typecho_relationships` (
   `cid` int(10) unsigned NOT NULL,
   `mid` int(10) unsigned NOT NULL,
+  KEY (`cid`,`mid`) USING BTREE
   PRIMARY KEY  (`cid`,`mid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=%charset%;
 
