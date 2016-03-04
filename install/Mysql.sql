@@ -127,7 +127,8 @@ CREATE TABLE `typecho_relationships` (
   `mid` int(10) unsigned NOT NULL,
   KEY `cid` (`cid`) USING HASH,
   KEY `mid` (`mid`) USING HASH,
-  PRIMARY KEY  (`cid`,`mid`)
+  PRIMARY KEY  (`cid`,`mid`),
+  partition by hash(mid) partitions 32
 ) ENGINE=MyISAM DEFAULT CHARSET=%charset%;
 
 -- --------------------------------------------------------
