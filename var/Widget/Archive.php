@@ -1182,7 +1182,8 @@ class Widget_Archive extends Widget_Abstract_Contents
         $this->pluginHandle()->trigger($hasPushed)->search($keywords, $this);
 
         if (!$hasPushed) {
-            $searchQuery = '%' . str_replace(' ', '%', $keywords) . '%';
+            //$searchQuery = '%' . str_replace(' ', '%', $keywords) . '%';
+            $searchQuery = $keywords;
 
             /** 搜索无法进入隐私项保护归档 */
             $select->where('table.contents.password IS NULL')
@@ -1190,7 +1191,9 @@ class Widget_Archive extends Widget_Abstract_Contents
 //            ->where('table.contents.type = ?', 'post');
 
             //换到全文搜索
-            ->where('match(table.contents.title,table.contents.text) against(?)',$searchQuery)
+            ->where('match(table.contents.title) against(? IN BOOLEAN MODE) '
+                    .'OR match(table.contents.text) against(? IN BOOLEAN MODE)',
+                    $searchQuery,$searchQuery)
                 ->where('table.contents.type = ?', 'post');
         }
 
