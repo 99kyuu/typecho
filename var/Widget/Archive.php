@@ -1186,8 +1186,12 @@ class Widget_Archive extends Widget_Abstract_Contents
 
             /** 搜索无法进入隐私项保护归档 */
             $select->where('table.contents.password IS NULL')
-            ->where('table.contents.title LIKE ? OR table.contents.text LIKE ?', $searchQuery, $searchQuery)
-            ->where('table.contents.type = ?', 'post');
+//            ->where('table.contents.title LIKE ? OR table.contents.text LIKE ?', $searchQuery, $searchQuery)
+//            ->where('table.contents.type = ?', 'post');
+
+            //换到全文搜索
+            ->where('match(table.contents.title,table.contents.text) against(?)',$searchQuery)
+                ->where('table.contents.type = ?', 'post');
         }
 
         /** 设置关键词 */
