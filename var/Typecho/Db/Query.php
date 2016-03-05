@@ -153,8 +153,8 @@ class Typecho_Db_Query
         }
         //add by typechodev.com，使Typecho支持mysql全文搜索的in boolean mode查询，避免将boolean mode关键词被转义掉。
         if(strpos($result,'match') !== false && strpos($result,'against') !==false){
-            $result = str_replace('`boolean`','boolean',$result);
-            $result = str_replace('`mode`','mode',$result);
+            $result = str_ireplace('`boolean`','BOOLEAN',$result);
+            $result = str_ireplace('`mode`','MODE',$result);
         }
 
         return $result;
