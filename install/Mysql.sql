@@ -63,7 +63,9 @@ CREATE TABLE `typecho_contents` (
   `parent` int(10) unsigned default '0',
   PRIMARY KEY  (`cid`),
   UNIQUE KEY `slug` (`slug`),
-  KEY `created` (`created`)
+  KEY `created` (`created`),
+  FULLTEXT KEY `index_title` (`title`),
+  FULLTEXT KEY `index_text` (`text`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=%charset%;
 
 -- --------------------------------------------------------
@@ -127,9 +129,10 @@ CREATE TABLE `typecho_relationships` (
   `mid` int(10) unsigned NOT NULL,
   KEY `cid` (`cid`) USING HASH,
   KEY `mid` (`mid`) USING HASH,
-  PRIMARY KEY  (`cid`,`mid`),
-  partition by hash(mid) partitions 32
-) ENGINE=MyISAM DEFAULT CHARSET=%charset%;
+  PRIMARY KEY  (`cid`,`mid`)
+) ENGINE=MyISAM DEFAULT CHARSET=%charset%
+PARTITION BY HASH(mid)
+PARTITIONS 32;
 
 -- --------------------------------------------------------
 
