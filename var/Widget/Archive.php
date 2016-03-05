@@ -1191,8 +1191,8 @@ class Widget_Archive extends Widget_Abstract_Contents
 //            ->where('table.contents.type = ?', 'post');
 
             //换到全文搜索
-            ->where('match(table.contents.title) against(? IN BOOLEAN MODE) '
-                    .'OR match(table.contents.text) against(? IN BOOLEAN MODE)',
+            ->where('match(table.contents.title) against(?) '
+                    .'OR match(table.contents.text) against(?)',
                     $searchQuery,$searchQuery)
                 ->where('table.contents.type = ?', 'post');
         }
