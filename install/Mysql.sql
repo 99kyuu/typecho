@@ -45,6 +45,7 @@ CREATE TABLE `typecho_comments` (
 
 CREATE TABLE `typecho_contents_source` (
   `cid` int(10) unsigned NOT NULL auto_increment,
+  `title` varchar(200) default NULL, /**冗余多一个标题，方便在后台文章列表的时候取出来*/
   `slug` varchar(200) default NULL,
   `created` int(10) unsigned default '0',
   `modified` int(10) unsigned default '0',

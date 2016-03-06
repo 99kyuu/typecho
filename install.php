@@ -372,7 +372,7 @@ Typecho_Cookie::set('__typecho_lang', $lang);
                                         $installDb->query($installDb->insert('table.relationships')->rows(array('cid' => 1, 'mid' => 1)));
 
                                         /** 初始内容 */
-                                        $cid = $installDb->query($installDb->insert('table.contents')->rows(array('slug' => 'start', 'created' => Typecho_Date::gmtTime(), 'modified' => Typecho_Date::gmtTime(),
+                                        $cid = $installDb->query($installDb->insert('table.contents')->rows(array('title'=> _t('欢迎使用 Typecho'),'slug' => 'start', 'created' => Typecho_Date::gmtTime(), 'modified' => Typecho_Date::gmtTime(),
                                             'authorId' => 1, 'type' => 'post', 'status' => 'publish', 'commentsNum' => 1, 'allowComment' => 1,
                                             'allowPing' => 1, 'allowFeed' => 1, 'parent' => 0)));
 
@@ -383,7 +383,7 @@ Typecho_Cookie::set('__typecho_lang', $lang);
                                             'title'=> _t('欢迎使用 Typecho'),
                                             'text' => '<!--markdown-->' . _t('如果您看到这篇文章,表示您的 blog 已经安装成功.'))));
 
-                                        $page_id = $installDb->query($installDb->insert('table.contents')->rows(array('slug' => 'start-page', 'created' => Typecho_Date::gmtTime(), 'modified' => Typecho_Date::gmtTime(),
+                                        $page_id = $installDb->query($installDb->insert('table.contents')->rows(array('title'=> _t('关于'),'slug' => 'start-page', 'created' => Typecho_Date::gmtTime(), 'modified' => Typecho_Date::gmtTime(),
                                             'authorId' => 1, 'order' => 0, 'type' => 'page', 'status' => 'publish', 'commentsNum' => 0, 'allowComment' => 1,
                                             'allowPing' => 1, 'allowFeed' => 1, 'parent' => 0)));
                                         $installDb->query($installDb->insert('table.contents_extend')->rows(array('cid' => $page_id,

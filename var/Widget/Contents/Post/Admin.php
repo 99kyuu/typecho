@@ -53,8 +53,8 @@ class Widget_Contents_Post_Admin extends Widget_Abstract_Contents
     protected function ___hasSaved()
     {
         $savedPost = $this->db->fetchRow($this->db->select('cid', 'modified')
-        ->from('table.contents')
-        ->where('table.contents.parent = ? AND (table.contents.type = ? OR table.contents.type = ?)',
+        ->from('table.contents_source')
+        ->where('table.contents_source.parent = ? AND (table.contents_source.type = ? OR table.contents_source.type = ?)',
             $this->cid, 'post_draft', 'page_draft')
         ->limit(1));
 
@@ -82,6 +82,7 @@ class Widget_Contents_Post_Admin extends Widget_Abstract_Contents
         throw new Typecho_Widget_Exception(_t('用户不存在'), 404);
     }
 
+
     /**
      * 执行函数
      *
@@ -94,26 +95,25 @@ class Widget_Contents_Post_Admin extends Widget_Abstract_Contents
         $this->_currentPage = $this->request->get('page', 1);
 
         /** 构建基础查询 */
-        $select = $this->select()->where('table.contents.type = ? OR (table.contents.type = ? AND table.contents.parent = ?)', 'post', 'post_draft', 0);
-
+        $select = $this->select()->where('table.contents_source.type = ? OR (table.contents_source.type = ? AND table.contents_source.parent = ?)', 'post', 'post_draft', 0);
         /** 过滤分类 */
         if (NULL != ($category = $this->request->category)) {
-            $select->join('table.relationships', 'table.contents.cid = table.relationships.cid')
+            $select->join('table.relationships', 'table.contents_source.cid = table.relationships.cid')
             ->where('table.relationships.mid = ?', $category);
         }
 
         /** 如果具有编辑以上权限,可以查看所有文章,反之只能查看自己的文章 */
         if (!$this->user->pass('editor', true)) {
-            $select->where('table.contents.authorId = ?', $this->user->uid);
+            $select->where('table.contents_source.authorId = ?', $this->user->uid);
         } else if (isset($this->request->uid)) {
-            $select->where('table.contents.authorId = ?', $this->request->filter('int')->uid);
+            $select->where('table.contents_source.authorId = ?', $this->request->filter('int')->uid);
         }
 
         /** 过滤标题 */
         if (NULL != ($keywords = $this->request->filter('search')->keywords)) {
             $args = array();
             $keywordsList = explode(' ', $keywords);
-            $args[] = implode(' OR ', array_fill(0, count($keywordsList), 'table.contents.title LIKE ?'));
+            $args[] = implode(' OR ', array_fill(0, count($keywordsList), 'table.contents_source.title LIKE ?'));
 
             foreach ($keywordsList as $keyword) {
                 $args[] = '%' . $keyword . '%';
@@ -126,7 +126,7 @@ class Widget_Contents_Post_Admin extends Widget_Abstract_Contents
         $this->_countSql = clone $select;
 
         /** 提交查询 */
-        $select->order('table.contents.created', Typecho_Db::SORT_DESC)
+        $select->order('table.contents_source.created', Typecho_Db::SORT_DESC)
         ->page($this->_currentPage, $this->parameter->pageSize);
 
         $this->db->fetchAll($select, array($this, 'push'));
@@ -146,6 +146,30 @@ class Widget_Contents_Post_Admin extends Widget_Abstract_Contents
         $nav = new Typecho_Widget_Helper_PageNavigator_Box(false === $this->_total ? $this->_total = $this->size($this->_countSql) : $this->_total,
         $this->_currentPage, $this->parameter->pageSize, $query);
         $nav->render('&laquo;', '&raquo;');
+    }
+
+
+    public function size(Typecho_Db_Query $condition)
+    {
+        return $this->db->fetchObject($condition
+            ->select(array('COUNT(DISTINCT table.contents_source.cid)' => 'num'))
+            ->from('table.contents_source')
+            ->cleanAttribute('group'))->num;
+    }
+
+
+    /**
+     * 获取查询对象。覆盖上文，提供一个简单的查询对象
+     *
+     * @access public
+     * @return Typecho_Db_Query
+     */
+    public function select()
+    {
+        return $this->db->select('table.contents_source.cid', 'table.contents_source.title', 'table.contents_source.slug', 'table.contents_source.created', 'table.contents_source.authorId',
+            'table.contents_source.modified', 'table.contents_source.type', 'table.contents_source.status', 'table.contents_source.commentsNum', 'table.contents_source.order',
+            'table.contents_source.template', 'table.contents_source.password', 'table.contents_source.allowComment', 'table.contents_source.allowPing', 'table.contents_source.allowFeed',
+            'table.contents_source.parent')->from('table.contents_source');
     }
 }
 

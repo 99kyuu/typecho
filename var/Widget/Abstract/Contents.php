@@ -284,7 +284,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
     {
         /** 构建插入结构 */
         $insertStruct = array(
-            //'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
+            'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
             'created'       =>  empty($content['created']) ? $this->options->gmtTime : $content['created'],
             'modified'      =>  $this->options->gmtTime,
             //'text'          =>  empty($content['text']) ? NULL : $content['text'],
@@ -339,6 +339,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
      */
     public function update(array $content, Typecho_Db_Query $condition)
     {
+        var_dump($content);die();
         /** 首先验证写入权限 */
         if (!$this->isWriteable(clone $condition)) {
             return false;
@@ -346,7 +347,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
 
         /** 构建更新结构 */
         $preUpdateStruct = array(
-            //'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
+            'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
             'order'         =>  empty($content['order']) ? 0 : intval($content['order']),
             //'text'          =>  empty($content['text']) ? NULL : $content['text'],
             'template'      =>  empty($content['template']) ? NULL : $content['template'],
