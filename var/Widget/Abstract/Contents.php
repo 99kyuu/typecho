@@ -339,7 +339,6 @@ class Widget_Abstract_Contents extends Widget_Abstract
      */
     public function update(array $content, Typecho_Db_Query $condition)
     {
-        var_dump($content);die();
         /** 首先验证写入权限 */
         if (!$this->isWriteable(clone $condition)) {
             return false;
