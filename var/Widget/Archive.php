@@ -1200,12 +1200,26 @@ class Widget_Archive extends Widget_Abstract_Contents
             //$searchQuery = '%' . str_replace(' ', '%', $keywords) . '%';
             //$searchQuery = $keywords;
 
+            $max_query_count = 500;//注意：为了提高性能，这里最多搜索前500条出来，再多则不显示了。
             $db = Typecho_Db::get();
+            //优先从title中找
             $query= $db->select('cid')->from('table.contents_index')
-                ->where('match(table.contents_index.title) against(?) '
-                    .'OR match(table.contents_index.text) against(?)',
-                    $keywords,$keywords);
+                ->where('match(table.contents_index.title) against(?)',
+                    $keywords)
+            //->order('table.contents_index.cid',Typecho_Db::SORT_DESC)
+            ->limit($max_query_count);
             $cid_result = $db->fetchAll($query);
+            //title中找不够，再从text中找
+            if(count($cid_result) < $max_query_count){
+                $query= $db->select('cid')->from('table.contents_index')
+                    ->where('OR match(table.contents_index.text) against(?)',
+                        $keywords)
+                    ->order('table.contents_index.cid',Typecho_Db::SORT_DESC)
+                    ->limit($max_query_count - count($cid_result));
+                $cid_result2 = $db->fetchAll($query);
+                $cid_result = array_merge($cid_result,$cid_result2);
+            }
+
             $cid_list = array_map(function($item){return $item['cid'];},$cid_result);
             if(empty($cid_list)) $cid_list[] = "-1";//人为增加一个元素，避免后面的sql语句拼接错误
 
