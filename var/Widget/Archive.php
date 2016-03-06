@@ -1198,17 +1198,20 @@ class Widget_Archive extends Widget_Abstract_Contents
 
         if (!$hasPushed) {
             //$searchQuery = '%' . str_replace(' ', '%', $keywords) . '%';
-            $searchQuery = $keywords;
+            //$searchQuery = $keywords;
+
+            $db = Typecho_Db::get();
+            $query= $db->select('cid')->from('table.contents_index')
+                ->where('match(table.contents_index.title) against(?) '
+                    .'OR match(table.contents_index.text) against(?)',
+                    $keywords,$keywords);
+            $cid_result = $db->fetchAll($query);
+            $cid_list = array_map(function($item){return $item['cid'];},$cid_result);
+            if(empty($cid_list)) $cid_list[] = "-1";//人为增加一个元素，避免后面的sql语句拼接错误
 
             /** 搜索无法进入隐私项保护归档 */
             $select->where('table.contents.password IS NULL')
-//            ->where('table.contents.title LIKE ? OR table.contents.text LIKE ?', $searchQuery, $searchQuery)
-//            ->where('table.contents.type = ?', 'post');
-
-            //换到全文搜索
-            ->where('match(table.contents.title) against(?) '
-                    .'OR match(table.contents.text) against(?)',
-                    $searchQuery,$searchQuery)
+                ->where('table.contents.cid in ?',$cid_list)
                 ->where('table.contents.type = ?', 'post');
         }
 
