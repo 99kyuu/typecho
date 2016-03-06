@@ -921,11 +921,26 @@ class Widget_Archive extends Widget_Abstract_Contents
         $children = $categoryListWidget->getAllChildren($category['mid']);
         $children[] = $category['mid'];
 
-        /** fix sql92 by 70 */
-        $select->join('table.relationships', 'table.contents.cid = table.relationships.cid')
-        ->where('table.relationships.mid IN ?', $children)
-        ->where('table.contents.type = ?', 'post')
-        ->group('table.contents.cid');
+        //add by teypechodev.com
+        //检查是否存在ext_categories字段
+        $clnSelect = $this->db->select()
+            ->from('information_schema.columns')
+            ->where('TABLE_NAME like ?', '%contents%')
+            ->where('COLUMN_NAME = ?','ext_categories')
+            ->limit(1);
+        $test_result = $this->db->fetchRow($clnSelect);
+        //如果不存在ext_categories，那么走原来的查询逻辑，否则走优化后的逻辑
+        if(empty($test_result)){
+            /** fix sql92 by 70 */
+            $select->join('table.relationships', 'table.contents.cid = table.relationships.cid')
+                ->where('table.relationships.mid IN ?', $children)
+                ->where('table.contents.type = ?', 'post')
+                ->group('table.contents.cid');
+        }else{
+            //通过全文搜索的方式检索，而且仅检索当前分类，不检索子分类
+            $select->where('match(table.contents.ext_categories) against( ? in boolean mode)', sprintf("%03d",intval($category['mid'])))
+                ->where('table.contents.type = ?', 'post');
+        }
 
         /** 设置分页 */
         $this->_pageRow = array_merge($category, array(
