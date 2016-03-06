@@ -260,6 +260,19 @@ class Widget_Abstract_Contents extends Widget_Abstract
         'table.contents.parent')->from('table.contents');
     }
 
+
+    private function build_ext_categories_content($arr_categories){
+        if($arr_categories == NULL or empty($arr_categories)){
+            return NULL;
+        }
+
+        $arr_tmp = [];
+        foreach($arr_categories as $cat){
+            $arr_tmp = sprintf("%03d",intval($cat));
+        }
+        return join(' ',$arr_tmp);
+    }
+
     /**
      * 插入内容
      *
@@ -271,10 +284,10 @@ class Widget_Abstract_Contents extends Widget_Abstract
     {
         /** 构建插入结构 */
         $insertStruct = array(
-            'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
+            //'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
             'created'       =>  empty($content['created']) ? $this->options->gmtTime : $content['created'],
             'modified'      =>  $this->options->gmtTime,
-            'text'          =>  empty($content['text']) ? NULL : $content['text'],
+            //'text'          =>  empty($content['text']) ? NULL : $content['text'],
             'order'         =>  empty($content['order']) ? 0 : intval($content['order']),
             'authorId'      =>  isset($content['authorId']) ? $content['authorId'] : $this->user->uid,
             'template'      =>  empty($content['template']) ? NULL : $content['template'],
@@ -285,15 +298,28 @@ class Widget_Abstract_Contents extends Widget_Abstract
             'allowComment'  =>  !empty($content['allowComment']) && 1 == $content['allowComment'] ? 1 : 0,
             'allowPing'     =>  !empty($content['allowPing']) && 1 == $content['allowPing'] ? 1 : 0,
             'allowFeed'     =>  !empty($content['allowFeed']) && 1 == $content['allowFeed'] ? 1 : 0,
-            'parent'        =>  empty($content['parent']) ? 0 : intval($content['parent'])
+            'parent'        =>  empty($content['parent']) ? 0 : intval($content['parent']),
+            'ext_categories'=>  $this->build_ext_categories_content($content['category'])
         );
+
 
         if (!empty($content['cid'])) {
             $insertStruct['cid'] = $content['cid'];
         }
 
         /** 首先插入部分数据 */
-        $insertId = $this->db->query($this->db->insert('table.contents')->rows($insertStruct));
+        $insertId = $this->db->query($this->db->insert('table.contents_source')->rows($insertStruct));
+        if ($insertId > 0) {
+            /** 然后插入内容表 */
+            $extendContent = array(
+                'cid'           =>  $insertId,
+                'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
+                'text'          =>  empty($content['text']) ? NULL : $content['text'],
+            );
+            $this->db->query($this->db->insert('table.contents_extend')->rows($extendContent));
+            $this->db->query($this->db->insert('table.contents_index')->rows($extendContent));
+        }
+
 
         /** 更新缩略名 */
         if ($insertId > 0) {
@@ -320,9 +346,9 @@ class Widget_Abstract_Contents extends Widget_Abstract
 
         /** 构建更新结构 */
         $preUpdateStruct = array(
-            'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
+            //'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
             'order'         =>  empty($content['order']) ? 0 : intval($content['order']),
-            'text'          =>  empty($content['text']) ? NULL : $content['text'],
+            //'text'          =>  empty($content['text']) ? NULL : $content['text'],
             'template'      =>  empty($content['template']) ? NULL : $content['template'],
             'type'          =>  empty($content['type']) ? 'post' : $content['type'],
             'status'        =>  empty($content['status']) ? 'publish' : $content['status'],
@@ -330,7 +356,12 @@ class Widget_Abstract_Contents extends Widget_Abstract
             'allowComment'  =>  !empty($content['allowComment']) && 1 == $content['allowComment'] ? 1 : 0,
             'allowPing'     =>  !empty($content['allowPing']) && 1 == $content['allowPing'] ? 1 : 0,
             'allowFeed'     =>  !empty($content['allowFeed']) && 1 == $content['allowFeed'] ? 1 : 0,
-            'parent'        =>  empty($content['parent']) ? 0 : intval($content['parent'])
+            'parent'        =>  empty($content['parent']) ? 0 : intval($content['parent']),
+            'ext_categories'=>  $this->build_ext_categories_content($content['category'])
+        );
+        $preUpdateStruct2 = array(
+            'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),
+            'text'          =>  empty($content['text']) ? NULL : $content['text'],
         );
 
         $updateStruct = array();
@@ -349,7 +380,10 @@ class Widget_Abstract_Contents extends Widget_Abstract
 
         /** 首先插入部分数据 */
         $updateCondition = clone $condition;
-        $updateRows = $this->db->query($condition->update('table.contents')->rows($updateStruct));
+        $updateCondition2 = clone $condition;
+        $updateRows = $this->db->query($condition->update('table.contents_source')->rows($updateStruct));
+        $this->db->query($updateCondition2->update('table.contents_extend')->rows($preUpdateStruct2));
+        $this->db->query($updateCondition2->update('table.contents_index')->rows($preUpdateStruct2));
 
         /** 更新缩略名 */
         if ($updateRows > 0 && isset($content['slug'])) {
@@ -407,7 +441,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
             $count ++;
         }
 
-        $this->db->query($this->db->update('table.contents')->rows(array('slug' => $result))
+        $this->db->query($this->db->update('table.contents_source')->rows(array('slug' => $result))
         ->where('cid = ?', $cid));
 
         return $result;
