@@ -43,13 +43,11 @@ CREATE TABLE `typecho_comments` (
 -- 表的结构 `typecho_contents`
 --
 
-CREATE TABLE `typecho_contents` (
+CREATE TABLE `typecho_contents_source` (
   `cid` int(10) unsigned NOT NULL auto_increment,
-  `title` varchar(200) default NULL,
   `slug` varchar(200) default NULL,
   `created` int(10) unsigned default '0',
   `modified` int(10) unsigned default '0',
-  `text` text,
   `order` int(10) unsigned default '0',
   `authorId` int(10) unsigned default '0',
   `template` varchar(32) default NULL,
@@ -61,12 +59,48 @@ CREATE TABLE `typecho_contents` (
   `allowPing` char(1) default '0',
   `allowFeed` char(1) default '0',
   `parent` int(10) unsigned default '0',
+  `ext_categories` varchar(128) default NULL,
   PRIMARY KEY  (`cid`),
   UNIQUE KEY `slug` (`slug`),
   KEY `created` (`created`),
+  FULLTEXT KEY `ext_categories` (`ext_categories`)
+) ENGINE=MyISAM  DEFAULT CHARSET=%charset%;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `typecho_contents_extend`，用于分区记录文章内容，减少IO
+--
+
+CREATE TABLE `typecho_contents_extend` (
+  `cid` int(10) unsigned NOT NULL auto_increment,
+  `title` varchar(200) default NULL,
+  `text` text,
+  PRIMARY KEY  (`cid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=%charset%
+PARTITION BY HASH(cid)
+PARTITIONS 256;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `typecho_contents_index`，用于对文章内容进行索引
+--
+CREATE TABLE `typecho_contents_index` (
+  `cid` int(10) unsigned NOT NULL auto_increment,
+  `title` varchar(200) default NULL,
+  `text` text,
+  PRIMARY KEY  (`cid`),
   FULLTEXT KEY `index_title` (`title`),
   FULLTEXT KEY `index_text` (`text`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=%charset%;
+
+-- --------------------------------------------------------
+
+--
+-- 兼容官方版本所使用的视图结构 `typecho_contents`
+--
+create view `typecho_contents` as select * from `typecho_contents_source` inner join `typecho_contents_extend` using(cid);
 
 -- --------------------------------------------------------
 
