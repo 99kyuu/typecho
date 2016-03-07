@@ -173,7 +173,7 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
      */
     protected function unAttach($cid)
     {
-        $this->db->query($this->db->update('table.contents')->rows(array('parent' => 0, 'status' => 'publish'))
+        $this->db->query($this->db->update('table.contents_source')->rows(array('parent' => 0, 'status' => 'publish'))
                 ->where('parent = ? AND type = ?', $cid, 'attachment'));
     }
 
@@ -817,8 +817,8 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
 
                 /** 删除草稿 */
                 $draft = $this->db->fetchRow($this->db->select('cid')
-                    ->from('table.contents')
-                    ->where('table.contents.parent = ? AND table.contents.type = ?',
+                    ->from('table.contents_source')
+                    ->where('table.contents_source.parent = ? AND table.contents_source.type = ?',
                         $post, 'post_draft')
                     ->limit(1));
 

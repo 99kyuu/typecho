@@ -402,7 +402,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
      */
     public function delete(Typecho_Db_Query $condition)
     {
-        return $this->db->query($condition->delete('table.contents'));
+        return $this->db->query($condition->delete('table.contents_source')); //hpte:修改表名
     }
 
     /**
