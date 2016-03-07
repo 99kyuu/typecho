@@ -101,7 +101,28 @@ CREATE TABLE `typecho_contents_index` (
 --
 -- 兼容官方版本所使用的视图结构 `typecho_contents`
 --
-create view `typecho_contents` as select * from `typecho_contents_source` inner join `typecho_contents_extend` using(cid);
+create view `typecho_contents` as 
+select 
+ typecho_contents_source.`cid`,
+ typecho_contents_source.`title`,
+ typecho_contents_source.`slug`,
+ typecho_contents_extend.`text`,
+ typecho_contents_source.`created`,
+ typecho_contents_source.`modified`,
+ typecho_contents_source.`order`,
+ typecho_contents_source.`authorId`,
+ typecho_contents_source.`template`,
+ typecho_contents_source.`type`,
+ typecho_contents_source.`status`,
+ typecho_contents_source.`password`,
+ typecho_contents_source.`commentsNum`,
+ typecho_contents_source.`allowComment`,
+ typecho_contents_source.`allowPing`,
+ typecho_contents_source.`allowFeed`,
+ typecho_contents_source.`parent`,
+ typecho_contents_source.`ext_categories`
+from `typecho_contents_source` 
+ inner join `typecho_contents_extend` using(cid);
 
 -- --------------------------------------------------------
 
