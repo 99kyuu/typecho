@@ -938,7 +938,7 @@ class Widget_Archive extends Widget_Abstract_Contents
                 ->group('table.contents.cid');
         }else{
             //通过全文搜索的方式检索，而且仅检索当前分类，不检索子分类
-            $select->where('match(table.contents.ext_categories) against( ? in boolean mode)', sprintf("%03d",intval($category['mid'])))
+            $select->where('match(table.contents.ext_categories) against( ? in boolean mode)', sprintf("%04d",intval($category['mid'])))
                 ->where('table.contents.type = ?', 'post');
         }
 

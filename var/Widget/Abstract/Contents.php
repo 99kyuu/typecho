@@ -268,7 +268,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
 
         $arr_tmp = [];
         foreach($arr_categories as $cat){
-            $arr_tmp[] = sprintf("%03d",intval($cat));
+            $arr_tmp[] = sprintf("%04d",intval($cat));
         }
         return join(' ',$arr_tmp);
     }
