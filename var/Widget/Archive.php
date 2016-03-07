@@ -1212,7 +1212,7 @@ class Widget_Archive extends Widget_Abstract_Contents
             //title中找不够，再从text中找
             if(count($cid_result) < $max_query_count){
                 $query= $db->select('cid')->from('table.contents_index')
-                    ->where('OR match(table.contents_index.text) against(?)',
+                    ->where('match(table.contents_index.text) against(?)',
                         $keywords)
                     ->order('table.contents_index.cid',Typecho_Db::SORT_DESC)
                     ->limit($max_query_count - count($cid_result));
