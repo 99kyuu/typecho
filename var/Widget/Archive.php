@@ -770,42 +770,46 @@ class Widget_Archive extends Widget_Abstract_Contents
         }
 
         /** 如果是单篇文章或独立页面 */
+        $is_cid_set = false;
         if (isset($this->request->cid)) {
             $select->where('table.contents.cid = ?', $this->request->filter('int')->cid);
+            $is_cid_set = true;
         }
 
-        /** 匹配缩略名 */
-        if (isset($this->request->slug)) {
-            $select->where('table.contents.slug = ?', $this->request->slug);
-        }
-
-        /** 匹配时间 */
-        if (isset($this->request->year)) {
-            $year = $this->request->filter('int')->year;
-
-            $fromMonth = 1;
-            $toMonth = 12;
-
-            $fromDay = 1;
-            $toDay = 31;
-
-            if (isset($this->request->month)) {
-                $fromMonth = $this->request->filter('int')->month;
-                $toMonth = $fromMonth;
-
-                $fromDay = 1;
-                $toDay = date('t', mktime(0, 0, 0, $toMonth, 1, $year));
-
-                if (isset($this->request->day)) {
-                    $fromDay = $this->request->filter('int')->day;
-                    $toDay = $fromDay;
-                }
+        if(!$is_cid_set){ //优化性能，如果有cid，则直接通过cid来获取post内容即可，无需再加上其他条件，避免性能降低
+            /** 匹配缩略名 */
+            if (isset($this->request->slug)) {
+                $select->where('table.contents.slug = ?', $this->request->slug);
             }
 
-            /** 获取起始GMT时间的unix时间戳 */
-            $from = mktime(0, 0, 0, $fromMonth, $fromDay, $year) - $this->options->timezone + $this->options->serverTimezone;
-            $to = mktime(23, 59, 59, $toMonth, $toDay, $year) - $this->options->timezone + $this->options->serverTimezone;
-            $select->where('table.contents.created > ? AND table.contents.created < ?', $from, $to);
+            /** 匹配时间 */
+            if (isset($this->request->year)) {
+                $year = $this->request->filter('int')->year;
+
+                $fromMonth = 1;
+                $toMonth = 12;
+
+                $fromDay = 1;
+                $toDay = 31;
+
+                if (isset($this->request->month)) {
+                    $fromMonth = $this->request->filter('int')->month;
+                    $toMonth = $fromMonth;
+
+                    $fromDay = 1;
+                    $toDay = date('t', mktime(0, 0, 0, $toMonth, 1, $year));
+
+                    if (isset($this->request->day)) {
+                        $fromDay = $this->request->filter('int')->day;
+                        $toDay = $fromDay;
+                    }
+                }
+
+                /** 获取起始GMT时间的unix时间戳 */
+                $from = mktime(0, 0, 0, $fromMonth, $fromDay, $year) - $this->options->timezone + $this->options->serverTimezone;
+                $to = mktime(23, 59, 59, $toMonth, $toDay, $year) - $this->options->timezone + $this->options->serverTimezone;
+                $select->where('table.contents.created > ? AND table.contents.created < ?', $from, $to);
+            }
         }
 
         /** 保存密码至cookie */
