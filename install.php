@@ -458,7 +458,8 @@ Typecho_Cookie::set('__typecho_lang', $lang);
                 <?php endif;?>
             <?php elseif (isset($_GET['config'])): ?>
             <?php
-                    $adapters = array('Mysql', 'Pdo_Mysql', 'SQLite', 'Pdo_SQLite', 'Pgsql', 'Pdo_Pgsql');
+                    //$adapters = array('Mysql', 'Pdo_Mysql', 'SQLite', 'Pdo_SQLite', 'Pgsql', 'Pdo_Pgsql');
+                    $adapters = array('Mysql'); //高性能版本仅支持MySQL适配器
                     foreach ($adapters as $firstAdapter) {
                         if (_p($firstAdapter)) {
                             break;
