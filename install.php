@@ -648,6 +648,8 @@ Typecho_Db::set(\$db);
                 <form method="post" action="?config">
                 <h1 class="typecho-install-title"><?php _e('欢迎使用 Typecho'); ?></h1>
                 <div class="typecho-install-body">
+                <h2><?php _e('硬件推荐配置:'); ?></h2>
+                <p><strong style="color: blue"><?php _e('以200万posts为例,建议内存1G以上,硬盘50G以上.其他数量posts可按比例折算.')?></strong></p>
                 <h2><?php _e('安装说明'); ?></h2>
                 <p><strong><?php _e('本安装程序将自动检测服务器环境是否符合最低配置需求. 如果不符合, 将在上方出现提示信息, 请按照提示信息检查您的主机配置. 如果服务器环境符合要求, 将在下方出现 "开始下一步" 的按钮, 点击此按钮即可一步完成安装.'); ?></strong></p>
                 <h2><?php _e('许可及协议'); ?></h2>
