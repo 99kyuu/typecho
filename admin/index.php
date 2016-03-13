@@ -7,6 +7,7 @@ $stat = Typecho_Widget::widget('Widget_Stat');
 ?>
 <div class="main">
     <div class="container typecho-dashboard">
+        <?php include 'page-title-hp.php'; ?>
         <?php include 'page-title.php'; ?>
         <div class="row typecho-page-main">
             <div class="col-mb-12 welcome-board" role="main">
