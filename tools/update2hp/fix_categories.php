@@ -2,11 +2,12 @@
 if (php_sapi_name() != 'cli'){
     die('');
 }
-$DB_USERNAME = "root";
-$DB_PASSWORD = 'sunnyzhou123';
-$DB_NAME = 'ic';
-$DB_TABLE_CONTENTS = "te_contents";
-$DB_TABLE_RELATIONSHIPS = "te_relationships";
+
+$DB_USERNAME = "your_username";
+$DB_PASSWORD = 'your_password';
+$DB_NAME = 'your_database';
+$DB_TABLE_CONTENTS = "typecho_contents_source";
+$DB_TABLE_RELATIONSHIPS = "typecho_relationships";
 
 
 $con_src = mysql_connect('127.0.0.1',$DB_USERNAME,$DB_PASSWORD);
@@ -54,7 +55,7 @@ $max_len = 10000;
 $last_cid = '';
 while($arr_relationships = mysql_fetch_assoc($p_relationships)){
     $cid = $arr_relationships['cid'];
-    $mid = sprintf("%03d",intval($arr_relationships['mid']));
+    $mid = sprintf("%04d",intval($arr_relationships['mid']));
     if(!isset($tmp[$cid])){
         $tmp[$cid] = array($mid);
     }else{

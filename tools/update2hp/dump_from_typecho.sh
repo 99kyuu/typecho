@@ -1,19 +1,12 @@
 #!/bin/bash
-db_name="typechodev"
-db_user="root"
-db_pass="xinzhong"
 
-tb_content="te_contents"
-tb_meta="te_metas"
-tb_relationships="te_relationships"
+db_name="your_database"
+db_user="your_username"
+db_pass="your_password"
 
-#db_name="your_db_name"
-#db_user="your_db_login_user"
-#db_pass="your_db_login_pass"
-#
-#tb_content="typecho_contents"
-#tb_meta="typecho_metas"
-#tb_relationships="typecho_relationships"
+tb_content="typecho_contents"
+tb_meta="typecho_metas"
+tb_relationships="typecho_relationships"
 
 file_content="te_contents.txt"
 file_content_ext="te_contents_extend.txt"

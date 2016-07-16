@@ -22,15 +22,15 @@ mysql -u$db_user -p$db_pass $db_name -e "delete from  ${tb_content_ext}"
 mysql -u$db_user -p$db_pass $db_name -e "delete from  ${tb_content_index}"
 mysql -u$db_user -p$db_pass $db_name -e "delete from  ${tb_content}"
 
-mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_relationship}\" into table ${tb_relationships} FIELDS  TERMINATED BY \"${split_char}\"";
+mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_relationship}\" into table ${tb_relationships} FIELDS  TERMINATED BY \"${split_char}\"  LINES TERMINATED BY \"#R#N\" ";
 echo "done for ${tb_relationships}"
-mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_meta}\" into table ${tb_meta} FIELDS  TERMINATED BY \"${split_char}\"";
+mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_meta}\" into table ${tb_meta} FIELDS  TERMINATED BY \"${split_char}\"  LINES TERMINATED BY \"#R#N\" ";
 echo "done for ${tb_meta}"
-mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_content}\" into table ${tb_content} FIELDS  TERMINATED BY \"${split_char}\"";
+mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_content}\" into table ${tb_content} FIELDS  TERMINATED BY \"${split_char}\"  LINES TERMINATED BY \"#R#N\" ";
 echo "done for ${tb_content}"
-mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_content_ext}\" into table ${tb_content_ext} FIELDS  TERMINATED BY \"${split_char}\"";
+mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_content_ext}\" into table ${tb_content_ext} FIELDS  TERMINATED BY \"${split_char}\"  LINES TERMINATED BY \"#R#N\" ";
 echo "done for ${tb_content_ext}"
-mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_content_ext}\" into table ${tb_content_index} FIELDS  TERMINATED BY \"${split_char}\"";
+mysql -u$db_user -p$db_pass $db_name -e "LOAD DATA INFILE \"${file_content_ext}\" into table ${tb_content_index} FIELDS  TERMINATED BY \"${split_char}\"  LINES TERMINATED BY \"#R#N\" ";
 echo "done for ${tb_content_index}"
 
 echo "Cleaning txt files..."
