@@ -98,7 +98,7 @@ def _load_content_seed_from_file(input_content_seed):
 
 #创建输出目录
 import os
-os.mkdir("out")  
+if not os.path.exists('out'): os.mkdir("out")
 
 #目标文件
 output_content = open(out_content_file,'w')
@@ -137,6 +137,9 @@ for i_post in range(1,num_posts+1):
         rand_pos = random.randint(0,len(post_content_seed)-100)
         post_title = post_content_seed[rand_pos:rand_pos+50]
         post_title = re.sub(r'<.*?>','',post_title)
+        post_title = post_title.replace('<','')
+        post_title = post_title.replace('>','')
+
 
         #生成随机的字符串
         rand_pos = random.randint(0,len(post_content_seed))

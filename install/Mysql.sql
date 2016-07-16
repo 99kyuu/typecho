@@ -80,7 +80,7 @@ CREATE TABLE `typecho_contents_extend` (
   PRIMARY KEY  (`cid`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=%charset%
 PARTITION BY HASH(cid)
-PARTITIONS 256;
+PARTITIONS 128;
 
 -- --------------------------------------------------------
 
