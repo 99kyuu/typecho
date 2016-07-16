@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- mode: python; coding: utf-8 -*-
-import sys
+import sys,re
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import random,re,time
@@ -136,6 +136,7 @@ for i_post in range(1,num_posts+1):
         #随机title
         rand_pos = random.randint(0,len(post_content_seed)-100)
         post_title = post_content_seed[rand_pos:rand_pos+50]
+        post_title = re.sub(r'<.*?>','',post_title)
 
         #生成随机的字符串
         rand_pos = random.randint(0,len(post_content_seed))
