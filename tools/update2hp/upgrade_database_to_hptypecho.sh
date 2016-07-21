@@ -9,6 +9,7 @@ typecho_table_prex='typecho_' #typecho的数据库前缀
 
 hptypecho_database='hpte' #hptypecho数据库名
 hptypecho_table_prex="typecho_" #hptyecho数据库前缀
+hptypecho_use_index='0' #表示使用索引,即支持搜索功能,0表示不适用索引
 ###############################
 
 function die(){
@@ -42,14 +43,16 @@ sql=$(printf "$sql_tmp" "$hptypecho_database" "$hptypecho_table_prex" "contents_
 mysql -u$db_user -p$db_passwd -e "$(printf 'delete from %s.%scontents_extend' $hptypecho_database $hptypecho_table_prex)" || die "清理contents_extend数据失败"
 mysql -u$db_user -p$db_passwd -e "$sql" || die "转换content_extend失败"
 
-
-sql_tmp="insert into %s.%s%s ( \
-    cid,title,text) \
-    select cid,title,text \
-    from %s.%s%s"
-sql=$(printf "$sql_tmp" "$hptypecho_database" "$hptypecho_table_prex" "contents_index" "$typecho_database" "$typecho_table_prex" "contents")
-mysql -u$db_user -p$db_passwd -e "$(printf 'delete from %s.%scontents_index' $hptypecho_database $hptypecho_table_prex)" || die "清理contents_index数据失败"
-mysql -u$db_user -p$db_passwd -e "$sql" || die "转换content_index失败"
+if [ "$hptypecho_use_index" -eq '1' ] #必要时可以关闭index表的创建
+then
+    sql_tmp="insert into %s.%s%s ( \
+        cid,title,text) \
+        select cid,title,text \
+        from %s.%s%s"
+    sql=$(printf "$sql_tmp" "$hptypecho_database" "$hptypecho_table_prex" "contents_index" "$typecho_database" "$typecho_table_prex" "contents")
+    mysql -u$db_user -p$db_passwd -e "$(printf 'delete from %s.%scontents_index' $hptypecho_database $hptypecho_table_prex)" || die "清理contents_index数据失败"
+    mysql -u$db_user -p$db_passwd -e "$sql" || die "转换content_index失败"
+fi
 
 sql_tmp="insert into %s.%s%s select * from %s.%s%s"
 sql=$(printf "$sql_tmp" "$hptypecho_database" "$hptypecho_table_prex" "metas" "$typecho_database" "$typecho_table_prex" "metas")

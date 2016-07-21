@@ -91,7 +91,7 @@ def _load_content_seed_from_file(input_content_seed):
     file_object = open(input_content_seed,'r')
     post_content_seed = ""
     try:
-         post_content_seed = file_object.read( )
+         post_content_seed = file_object.read().decode('utf8')
     finally:
          file_object.close()
          return post_content_seed
