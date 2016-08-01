@@ -317,7 +317,10 @@ class Widget_Abstract_Contents extends Widget_Abstract
                 'text'          =>  empty($content['text']) ? NULL : $content['text'],
             );
             $this->db->query($this->db->insert('table.contents_extend')->rows($extendContent));
-            $this->db->query($this->db->insert('table.contents_index')->rows($extendContent));
+            if(! defined('DISABLE_CONTENT_INDEX') || DISABLE_CONTENT_INDEX === false){
+                //性能优化项,如果不需要搜索,则可以关闭index,提高插入性能
+                $this->db->query($this->db->insert('table.contents_index')->rows($extendContent));
+            }
         }
 
 
@@ -383,7 +386,11 @@ class Widget_Abstract_Contents extends Widget_Abstract
         $updateCondition2 = clone $condition;
         $updateRows = $this->db->query($condition->update('table.contents_source')->rows($updateStruct));
         $this->db->query($updateCondition2->update('table.contents_extend')->rows($preUpdateStruct2));
-        $this->db->query($updateCondition2->update('table.contents_index')->rows($preUpdateStruct2));
+
+        if(!defined('DISABLE_CONTENT_INDEX') || DISABLE_CONTENT_INDEX === false) {
+            //性能优化项,如果不需要搜索,则可以关闭index,提高插入性能
+            $this->db->query($updateCondition2->update('table.contents_index')->rows($preUpdateStruct2));
+        }
 
         /** 更新缩略名 */
         if ($updateRows > 0 && isset($content['slug'])) {
@@ -627,10 +634,28 @@ class Widget_Abstract_Contents extends Widget_Abstract
      */
     public function size(Typecho_Db_Query $condition)
     {
-        return $this->db->fetchObject($condition
-            ->select(array('COUNT(DISTINCT table.contents.cid)' => 'num'))
-            ->from('table.contents')
-            ->cleanAttribute('group'))->num;
+        //TODO 这个是暂时的优化方法。最优的解是,查询表从content表改到contents_source表,前者是视图,会读取大量的数据。
+        if(defined('OPTIMIZE_PAGE_NAV') && OPTIMIZE_PAGE_NAV == true){
+            if($this->is('index')){
+                //在首页中,去掉所有where条件,并且直接查询最大的cid。当然,在分类里面会有问题。
+                //index页面中,查询条件过少,导致没有命中索引字段,进而查询慢
+                $condition->cleanAttribute('where');
+            }
+            return $this->db->fetchObject($condition
+                ->select(array('MAX(cid)' => 'num'))
+                ->from('table.contents')
+                ->cleanAttribute('group')
+                //->cleanAttribute('where')
+            )->num;
+        }else{
+            return $this->db->fetchObject($condition
+                ->select(array('COUNT(DISTINCT table.contents.cid)' => 'num'))
+                ->from('table.contents')
+                ->cleanAttribute('group'))->num;
+        }
+
+
+
     }
     
     /**
