@@ -1430,8 +1430,14 @@ class Widget_Archive extends Widget_Abstract_Contents
         /** 仅输出文章 */
         $this->_countSql = clone $select;
 
-        $select->order('table.contents.created', Typecho_Db::SORT_DESC)
-        ->page($this->_currentPage, $this->parameter->pageSize);
+        if(defined('OPTIMIZE_ORDER_BY') && OPTIMIZE_ORDER_BY == true){
+            $select->order('table.contents.cid', Typecho_Db::SORT_DESC)
+                ->page($this->_currentPage, $this->parameter->pageSize);
+        }else{
+            $select->order('table.contents.created', Typecho_Db::SORT_DESC)
+                ->page($this->_currentPage, $this->parameter->pageSize);
+        }
+
         $this->query($select);
     }
 
