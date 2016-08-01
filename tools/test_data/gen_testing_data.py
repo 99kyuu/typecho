@@ -144,7 +144,11 @@ for i_post in range(1,num_posts+1):
         #生成随机的字符串
         rand_pos = random.randint(0,len(post_content_seed))
         content = post_content_seed[0:rand_pos]
-
+        #for中文
+        #content_arr = list(content)
+        #random.shuffle(content_arr)
+        #content=''.join(content_arr)
+        #for英文
         arr_contents = content.split(' ')
         random.shuffle(arr_contents)
         content = " ".join(arr_contents)
