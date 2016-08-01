@@ -64,6 +64,10 @@ class Widget_Contents_Post_Date extends Typecho_Widget
      */
     public function execute()
     {
+        if(defined('DISABLE_POST_BY_DATE') && DISABLE_POST_BY_DATE == true){
+            //如果关闭了时间归档,则直接返回。这里太耗性鞥了。
+            return;
+        }
         /** 设置参数默认值 */
         $this->parameter->setDefault('format=Y-m&type=month&limit=0');
 
