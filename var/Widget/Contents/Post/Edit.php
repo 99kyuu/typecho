@@ -712,7 +712,7 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
      * @access public
      * @return void
      */
-    public function writePost()
+    public function writePost($direct=true)
     {
         $contents = $this->request->from('password', 'allowComment',
             'allowPing', 'allowFeed', 'slug', 'tags', 'text', 'visibility');
@@ -751,7 +751,7 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
             $pageQuery = $this->getPageOffsetQuery($this->created);
 
             /** 页面跳转 */
-            $this->response->redirect(Typecho_Common::url('manage-posts.php?' . $pageQuery, $this->options->adminUrl));
+            if($direct) $this->response->redirect(Typecho_Common::url('manage-posts.php?' . $pageQuery, $this->options->adminUrl));
         } else {
             /** 保存文章 */
             $contents['type'] = 'post_draft';
@@ -772,7 +772,7 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
                 $this->widget('Widget_Notice')->set(_t('草稿 "%s" 已经被保存', $this->title), 'success');
 
                 /** 返回原页面 */
-                $this->response->redirect(Typecho_Common::url('write-post.php?cid=' . $this->cid, $this->options->adminUrl));
+                if($direct) $this->response->redirect(Typecho_Common::url('write-post.php?cid=' . $this->cid, $this->options->adminUrl));
             }
         }
     }
