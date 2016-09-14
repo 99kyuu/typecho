@@ -1438,9 +1438,9 @@ class Widget_Archive extends Widget_Abstract_Contents
 
         if(defined('OPTIMIZE_PAGE_NAV') && OPTIMIZE_PAGE_NAV == true && $this->is('index')){
             #仅首页可以优化，
-            $select->page($this->_currentPage, $this->parameter->pageSize, true);
+            $select->page($this->_currentPage, $this->parameter->pageSize);
         }else{
-            $select->page($this->_currentPage, $this->parameter->pageSize,false);
+            $select->page($this->_currentPage, $this->parameter->pageSize);
         }
 
         $this->query($select);

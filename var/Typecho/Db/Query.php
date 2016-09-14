@@ -334,20 +334,17 @@ class Typecho_Db_Query
      * @param integer $pageSize 每页行数
      * @return Typecho_Db_Query
      */
-    public function page($page, $pageSize, $optimize_offset = false)
+    public function page($page, $pageSize)
     {
+
         $pageSize = intval($pageSize);
-        if($optimize_offset){
-            $this->cleanAttribute('offset');
-            $start_cid = intval((max(intval($page), 1) - 1) * $pageSize);
-            $this->where('cid > ? ', $start_cid);
-            $this->where('cid <= ? ', $start_cid +($pageSize * 10)); #多取10页，避免cid不够
-            $this->_sqlPreBuild['limit'] = $pageSize;
-        }else{
-            $this->_sqlPreBuild['limit'] = $pageSize;
-            $this->_sqlPreBuild['offset'] = (max(intval($page), 1) - 1) * $pageSize;
-        }
+        $this->_sqlPreBuild['limit'] = $pageSize;
+        $this->_sqlPreBuild['offset'] = (max(intval($page), 1) - 1) * $pageSize;
         return $this;
+    }
+
+    public function page_with_list($arr_cids = array()){
+
     }
 
     /**
