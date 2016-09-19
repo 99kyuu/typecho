@@ -1,6 +1,14 @@
 <?php
 
-class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_Do {
+if(!function_exists('log_to_client')){
+    function log_to_client($msg){
+        echo $msg."<br/>\n";
+//        file_put_contents('/tmp/gen_log.log',$msg."\n",FILE_APPEND);
+        ob_flush();
+        flush();
+    }
+}
+class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface_Do {
     public function __construct($request, $response, $params = NULL) {
         parent::__construct($request, $response, $params);
     }
@@ -20,6 +28,8 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
      * @return void
      */
     public function action() {
+        @ set_time_limit (0); //关掉时间限制
+
         define('MAX_LEN_PER_PROCESS', 1000);
         $request = Typecho_Request::getInstance();
 
@@ -29,7 +39,7 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
         @$settings = Helper::options()->plugin('HPSitemap');
         if(!$settings) $this->die_with_json(1001, '未开启Typecho插件');
 
-        $auth_key = $settings->sitemap_auth_key;
+        $auth_key = $settings->sitemap_user_auth;
         $key = $request->get('_auth','xxx');
         if(empty($auth_key) || empty($key) || $auth_key !== $key){
             $this->die_with_json(false, 'Invalid auth key');
@@ -39,6 +49,7 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
         if(empty($sitemap_dir)) $this->die_with_json(1002, '未设置sitemap目录');
 
         //检查目录环境
+        $sitemap_dir = rtrim($sitemap_dir,'/').'/';
         define('SITEMAP_FULL_DIR',__TYPECHO_ROOT_DIR__.'/usr/'.$sitemap_dir);
         if(!is_dir(SITEMAP_FULL_DIR)){
             if(!mkdir(SITEMAP_FULL_DIR)){
@@ -50,10 +61,10 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
         $db = Typecho_Db::get();
 
         $content_query= $db->select('cid, modified as last_modified')
-            ->from('table.content_source')
+            ->from('table.contents_source')
             ->where('status = ?', 'publish')
             ->where('type =?', 'post');
-        $category_query = $db->select('cid, unix_timestamp() as last_modified')
+        $category_query = $db->select('mid, unix_timestamp() as last_modified')
             ->from('table.metas')
             ->where('type =?', 'category');
 
@@ -63,20 +74,32 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
 
         //生成post的sitemap
         while(true){
-            echo 'Generating for file '.$simtemap_file_index."\n";
-            $list = $this->fetch_next($db, $content_query, MAX_LEN_PER_PROCESS);
-            if(empty($list)) break;
-            $sitemap_info = $this->build_sitemap_file_for_sql_items($list,$simtemap_file_index);
+            log_to_client('Generating post index for file '.$simtemap_file_index);
+            $content_query->cleanAttribute('limit');
+            $content_query->cleanAttribute('offset');
 
+            $content_query->limit(MAX_LEN_PER_PROCESS);
+            $content_query->offset((intval($simtemap_file_index) - 1) * MAX_LEN_PER_PROCESS);
+            $list = $this->fetch_next($db, $content_query);
+            if(empty($list)) break;
+
+            $sitemap_info = $this->build_sitemap_file_for_sql_items($list,$simtemap_file_index);
             if(empty($sitemap_info)) break;
             $array_sitemap_index[] = $sitemap_info;
             $simtemap_file_index += 1;
         }
+        log_to_client("Done for posts index.");
 
         //生成category的sitem
         while(true){
-            echo 'Generating for file '.$simtemap_file_index."\n";
-            $list = $this->fetch_next($db, $category_query, MAX_LEN_PER_PROCESS);
+            log_to_client('Generating category index for file '.$simtemap_file_index);
+            $category_query->cleanAttribute('limit');
+            $category_query->cleanAttribute('offset');
+
+            $category_query->limit(MAX_LEN_PER_PROCESS);
+            $category_query->offset((intval($simtemap_file_index) - 1) * MAX_LEN_PER_PROCESS);
+
+            $list = $this->fetch_next($db, $category_query);
             if(empty($list)) break;
             $sitemap_info = $this->build_sitemap_file_for_sql_items($list,$simtemap_file_index);
 
@@ -84,6 +107,7 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
             $array_sitemap_index[] = $sitemap_info;
             $simtemap_file_index += 1;
         }
+        log_to_client("Done for categories index.");
 
         //生成最后的sitemap_index文件
         $sitemap_index_filename = SITEMAP_FULL_DIR.'sitemap.xml';
@@ -91,14 +115,15 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
         if(!$ret){
             $this->die_with_json(1006,'Error on generate sitemap index file: '.$sitemap_index_filename);
         }
+        log_to_client("Done for sitemap generating, result sitemap file is ". $sitemap_index_filename);
     }
 
 
     function build_post_url($post_id){
-        return Typecho_Router::url('post',$post_id);
+        return Typecho_Router::url('post',array('cid'=>$post_id));
     }
     function build_category_url($cat_id){
-        return Typecho_Router::url('category',$cat_id);
+        return Typecho_Router::url('category',array('mid'=>$cat_id));
     }
 
     function build_site_map_xml_content($list){
@@ -131,6 +156,7 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
     }
 
     function change_sql_list_to_sitemap_format($list){
+        if(!function_exists('array_map')) log_to_client('array_map no exists.');
         $result = array_map(function($item){
             return array(
                 'loc'=>isset($item['cid'])?$this->build_post_url($item['cid']):$this->build_category_url($item['slug']),
@@ -140,14 +166,8 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
         return $result;
     }
 
-    function fetch_next($db,$query,$max_len){
-        $list = array();
-        while($item = $db->fetchRow($query)){
-            $list[] = $item;
-            if(count($list) >= $max_len){
-                break;
-            }
-        }
+    function fetch_next($db,$query){
+        $list = $db->fetchAll($query);
         return $list;
 
     }
@@ -171,6 +191,8 @@ class HPImport_Gen extends Widget_Abstract_Contents implements Widget_Interface_
             return $tmp;
         }
     }
+
+
 }
 ?>
 

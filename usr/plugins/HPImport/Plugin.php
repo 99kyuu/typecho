@@ -5,8 +5,8 @@
  * 
  * @category widget
  * @package HPImport
- * @author lgl
- * @version 0.1
+ * @author 雷鬼
+ * @version 1.0
  * @link http://www.typechodev.com
  */
 

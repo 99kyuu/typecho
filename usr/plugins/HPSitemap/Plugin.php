@@ -5,12 +5,12 @@
  * 
  * @category widget
  * @package HPSitemap
- * @author lgl
- * @version 0.1
+ * @author 雷鬼
+ * @version 1.0
  * @link http://www.typechodev.com
  */
 
-class HPSite_Plugin implements Typecho_Plugin_Interface
+class HPSitemap_Plugin implements Typecho_Plugin_Interface
 {
     public static function activate(){
         Helper::addAction('gen_sitemap', 'HPSitemap_Gen');
