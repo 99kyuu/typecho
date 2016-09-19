@@ -1,10 +1,10 @@
 <?php
 
 /**
- * 数据导入工具插件
+ * sitemap生成工具
  * 
  * @category widget
- * @package HPImport
+ * @package HPSitemap
  * @author lgl
  * @version 0.1
  * @link http://www.typechodev.com

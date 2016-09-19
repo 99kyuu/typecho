@@ -34,7 +34,7 @@ class HPImport_Post extends Widget_Abstract_Contents implements Widget_Interface
         if(!$settings) $this->die_with_json(1003, '未开启Typecho插件，无法查到导入数据所使用的账号密码');
 
 
-        $auth_key = $settings->import_auth_key;
+        $auth_key = $settings->import_user_auth;
         $key = $request->get('_auth','xxx');
         if(empty($auth_key) || empty($key) || $auth_key !== $key){
             $this->die_with_json(false, 'Invalid auth key');
