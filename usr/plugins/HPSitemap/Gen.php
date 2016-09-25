@@ -30,6 +30,8 @@ class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface
     public function action() {
         @ set_time_limit (0); //关掉时间限制
 
+        define('SITE_URL',Helper::options()->siteUrl);
+
         define('MAX_LEN_PER_PROCESS', 1000);
         $request = Typecho_Request::getInstance();
 
@@ -50,7 +52,10 @@ class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface
 
         //检查目录环境
         $sitemap_dir = rtrim($sitemap_dir,'/').'/';
-        define('SITEMAP_FULL_DIR',__TYPECHO_ROOT_DIR__.'/usr/'.$sitemap_dir);
+
+        define('SITEMAP_DIR','usr/'.$sitemap_dir);
+        define('SITEMAP_FULL_DIR',__TYPECHO_ROOT_DIR__.'/'.SITEMAP_DIR);
+
         if(!is_dir(SITEMAP_FULL_DIR)){
             if(!mkdir(SITEMAP_FULL_DIR)){
                 $this->die_with_json(1003,'Mkdir sitemap dir failed: '.SITEMAP_FULL_DIR);
