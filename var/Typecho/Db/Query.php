@@ -68,6 +68,8 @@ class Typecho_Db_Query
      */
     private $_prefix;
 
+    private $switch_contents_source;
+
     /**
      * 构造函数,引用数据库适配器作为内部数据
      *
@@ -343,7 +345,33 @@ class Typecho_Db_Query
         return $this;
     }
 
-    public function page_with_list($arr_cids = array()){
+    public function page_with_optimized($page, $pageSize){
+        $this->page($page,$pageSize);
+
+        $select_copy = clone $this;
+        $select_copy->cleanAttribute('fields');
+        $select_copy->select('cid')->from('table.contents_source');
+
+
+        $db=Typecho_Db::get();
+        $rows = $db->fetchAll($select_copy);
+
+        $this->cleanAttribute('limit');
+        $this->cleanAttribute('offset');
+        $this->cleanAttribute('where');
+        $this->_sqlPreBuild['action'] = Typecho_Db::SELECT;
+        $cids = array_map(function($item){ return intval($item['cid']);},$rows);
+        if(count($cids) == 0){
+            //没有符合的
+            $this->where('1 = -1');
+        }else{
+            $str_ids = join(',',$cids);
+            $this->where('cid in ('. $str_ids .')');
+        }
+
+
+
+
 
     }
 
@@ -447,6 +475,9 @@ class Typecho_Db_Query
      */
     public function from($table)
     {
+        if($table == 'table.contents_source'){
+            $this->switch_contents_source = true;
+        }
         $this->_sqlPreBuild['table'] = $this->filterPrefix($table);
         return $this;
     }
@@ -490,6 +521,11 @@ class Typecho_Db_Query
         return $this;
     }
 
+    public function is_select_contents(){
+        return $this->_sqlPreBuild['action'] == Typecho_Db::SELECT && strpos($this->_sqlPreBuild['table'],'contents');
+    }
+
+
     /**
      * 构造最终查询语句
      *
@@ -497,20 +533,24 @@ class Typecho_Db_Query
      */
     public function __toString()
     {
+        $result = NULL;
         switch ($this->_sqlPreBuild['action']) {
             case Typecho_Db::SELECT:
-                return $this->_adapter->parseSelect($this->_sqlPreBuild);
+                $result = $this->_adapter->parseSelect($this->_sqlPreBuild);
+                break;
             case Typecho_Db::INSERT:
-                return 'INSERT INTO '
+                $result = 'INSERT INTO '
                 . $this->_sqlPreBuild['table']
                 . '(' . implode(' , ', array_keys($this->_sqlPreBuild['rows'])) . ')'
                 . ' VALUES '
                 . '(' . implode(' , ', array_values($this->_sqlPreBuild['rows'])) . ')'
                 . $this->_sqlPreBuild['limit'];
+                break;
             case Typecho_Db::DELETE:
-                return 'DELETE FROM '
+                $result = 'DELETE FROM '
                 . $this->_sqlPreBuild['table']
                 . $this->_sqlPreBuild['where'];
+                break;
             case Typecho_Db::UPDATE:
                 $columns = array();
                 if (isset($this->_sqlPreBuild['rows'])) {
@@ -519,12 +559,19 @@ class Typecho_Db_Query
                     }
                 }
 
-                return 'UPDATE '
+                $result = 'UPDATE '
                 . $this->_sqlPreBuild['table']
                 . ' SET ' . implode(' , ', $columns)
                 . $this->_sqlPreBuild['where'];
+                break;
             default:
-                return NULL;
+                $result = NULL;
         }
+
+        if($result && $this->switch_contents_source){
+            $pre = Typecho_Db::get()->getPrefix();
+            $result = str_ireplace($pre.'contents.', $pre.'contents_source.', $result);
+        }
+        return $result;
     }
 }

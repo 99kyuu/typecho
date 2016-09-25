@@ -1436,13 +1436,11 @@ class Widget_Archive extends Widget_Abstract_Contents
             $select->order('table.contents.created', Typecho_Db::SORT_DESC);
         }
 
-        if(defined('OPTIMIZE_PAGE_NAV') && OPTIMIZE_PAGE_NAV == true && $this->is('index')){
-            #仅首页可以优化，
-            $select->page($this->_currentPage, $this->parameter->pageSize);
+        if(defined('OPTIMIZE_PAGE_NAV') && OPTIMIZE_PAGE_NAV == true && $select->is_select_contents()){
+            $select->page_with_optimized($this->_currentPage, $this->parameter->pageSize);
         }else{
             $select->page($this->_currentPage, $this->parameter->pageSize);
         }
-
         $this->query($select);
     }
 

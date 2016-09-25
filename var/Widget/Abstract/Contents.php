@@ -634,28 +634,30 @@ class Widget_Abstract_Contents extends Widget_Abstract
      */
     public function size(Typecho_Db_Query $condition)
     {
-        //TODO 这个是暂时的优化方法。最优的解是,查询表从content表改到contents_source表,前者是视图,会读取大量的数据。
-        if(defined('OPTIMIZE_PAGE_NAV') && OPTIMIZE_PAGE_NAV == true){
-            if($this->is('index')){
+        if(defined('OPTIMIZE_PAGE_NAV') && OPTIMIZE_PAGE_NAV == true && $condition->is_select_contents()){
+            if($this->is('index') ){
                 //在首页中,去掉所有where条件,并且直接查询最大的cid。当然,在分类里面会有问题。
                 //index页面中,查询条件过少,导致没有命中索引字段,进而查询慢
-                $condition->cleanAttribute('where');
+                $condition
+                    ->select(array('MAX(cid)' => 'num'))
+                    ->from('table.contents_source')
+                    ->cleanAttribute('group')
+                    ->cleanAttribute('where');
+
+            }else{
+                $condition
+                    ->select(array('COUNT(DISTINCT table.contents_source.cid)' => 'num'))
+                    ->from('table.contents_source');
+
             }
-            return $this->db->fetchObject($condition
-                ->select(array('MAX(cid)' => 'num'))
-                ->from('table.contents')
-                ->cleanAttribute('group')
-                //->cleanAttribute('where')
-            )->num;
+            return $this->db->fetchObject($condition)->num;
+
         }else{
             return $this->db->fetchObject($condition
                 ->select(array('COUNT(DISTINCT table.contents.cid)' => 'num'))
                 ->from('table.contents')
                 ->cleanAttribute('group'))->num;
         }
-
-
-
     }
     
     /**
