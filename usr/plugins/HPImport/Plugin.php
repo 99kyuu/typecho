@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 数据导入工具插件
+ * 数据导入工具插件。<a href='https://www.typechodev.com/index.php/archives/701/'>需要帮助?<a/>
  * 
  * @category widget
  * @package HPImport

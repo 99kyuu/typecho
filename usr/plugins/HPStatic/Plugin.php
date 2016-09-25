@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 静态化页面，提高服务器性能
+ * 静态化页面，提高服务器性能。<a href='https://www.typechodev.com/index.php/archives/703/'>需要帮助?</a>
  * 
  * @category widget
  * @package HPStatic

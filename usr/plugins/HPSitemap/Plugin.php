@@ -1,7 +1,7 @@
 <?php
 
 /**
- * sitemap生成工具
+ * sitemap生成工具。<a href='https://www.typechodev.com/index.php/archives/702/'>需要帮助?</a>
  * 
  * @category widget
  * @package HPSitemap
