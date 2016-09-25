@@ -4,18 +4,18 @@
  * 静态化页面，提高服务器性能。<a href='https://www.typechodev.com/index.php/archives/703/'>需要帮助?</a>
  * 
  * @category widget
- * @package HPStatic
+ * @package HPCache
  * @author 雷鬼
  * @version 1.0
  * @link http://www.typechodev.com
  */
 
-class HPStatic_Plugin implements Typecho_Plugin_Interface
+class HPCache_Plugin implements Typecho_Plugin_Interface
 {
 
     public static function activate(){
-        Typecho_Plugin::factory('index.php')->begin = array('HPStatic_Plugin', 'getCache');
-        Typecho_Plugin::factory('index.php')->end = array('HPStatic_Plugin', 'setCache');
+        Typecho_Plugin::factory('index.php')->begin = array('HPCache_Plugin', 'getCache');
+        Typecho_Plugin::factory('index.php')->end = array('HPCache_Plugin', 'setCache');
     }
 
     public static function deactivate(){
@@ -57,7 +57,7 @@ class HPStatic_Plugin implements Typecho_Plugin_Interface
 
         $hash = md5($url);
 
-        @$settings = Helper::options()->plugin('HPStatic');
+        @$settings = Helper::options()->plugin('HPCache');
         if(!$settings) return;
 
 
@@ -100,7 +100,7 @@ class HPStatic_Plugin implements Typecho_Plugin_Interface
             return;
         }
 
-        @$settings = Helper::options()->plugin('HPStatic');
+        @$settings = Helper::options()->plugin('HPCache');
         if(!$settings) return;
         $cache_root = $settings->cache_dir;
         if(strstr($cache_root, '/') !== 0 ){
