@@ -65,11 +65,11 @@ class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface
 
         $db = Typecho_Db::get();
 
-        $content_query= $db->select('cid, modified as last_modified')
+        $content_query= $db->select('cid,slug, modified as last_modified')
             ->from('table.contents_source')
             ->where('status = ?', 'publish')
             ->where('type =?', 'post');
-        $category_query = $db->select('mid, unix_timestamp() as last_modified')
+        $category_query = $db->select('mid, slug, unix_timestamp() as last_modified')
             ->from('table.metas')
             ->where('type =?', 'category');
 
@@ -124,11 +124,11 @@ class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface
     }
 
 
-    function build_post_url($post_id){
-        return Typecho_Router::url('post',array('cid'=>$post_id));
+    function build_post_url($post){
+        return Typecho_Router::url('post',$post);
     }
-    function build_category_url($cat_id){
-        return Typecho_Router::url('category',array('mid'=>$cat_id));
+    function build_category_url($cat){
+        return Typecho_Router::url('category',$cat);
     }
 
     function build_site_map_xml_content($list){
@@ -164,7 +164,7 @@ class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface
         if(!function_exists('array_map')) log_to_client('array_map no exists.');
         $result = array_map(function($item){
             return array(
-                'loc'=>isset($item['cid'])?$this->build_post_url($item['cid']):$this->build_category_url($item['slug']),
+                'loc'=>isset($item['cid'])?$this->build_post_url($item):$this->build_category_url($item),
                 'lastmod'=>gmdate('Y-m-d\TH:i:s+08:00',$item['last_modified'])
             );
         },$list);
