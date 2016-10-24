@@ -125,10 +125,12 @@ class HPSitemap_Gen extends Widget_Abstract_Contents implements Widget_Interface
 
 
     function build_post_url($post){
-        return Typecho_Router::url('post',$post);
+        $url = Typecho_Router::url('post',$post);
+	return Helper::options()->index.$url;	
     }
     function build_category_url($cat){
-        return Typecho_Router::url('category',$cat);
+        $return =  Typecho_Router::url('category',$cat);
+	return Helper::options()->index.$url;
     }
 
     function build_site_map_xml_content($list){
