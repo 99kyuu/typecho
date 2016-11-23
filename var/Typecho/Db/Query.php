@@ -350,7 +350,7 @@ class Typecho_Db_Query
 
         $select_copy = clone $this;
         $select_copy->cleanAttribute('fields');
-        $select_copy->select('cid')->from('table.contents_source');
+        $select_copy->select('table.contents_source.cid')->from('table.contents_source');
 
 
         $db=Typecho_Db::get();
@@ -366,7 +366,8 @@ class Typecho_Db_Query
             $this->where('1 = -1');
         }else{
             $str_ids = join(',',$cids);
-            $this->where('cid in ('. $str_ids .')');
+            $table_name = $this->_sqlPreBuild['table'];
+            $this->where("{$table_name}.cid in (". $str_ids .")");
         }
 
 
