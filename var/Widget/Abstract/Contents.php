@@ -261,7 +261,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
     }
 
 
-    private function build_ext_categories_content($arr_categories){
+    protected function build_ext_metas_content($arr_categories){
         if($arr_categories == NULL or empty($arr_categories)){
             return NULL;
         }
@@ -299,7 +299,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
             'allowPing'     =>  !empty($content['allowPing']) && 1 == $content['allowPing'] ? 1 : 0,
             'allowFeed'     =>  !empty($content['allowFeed']) && 1 == $content['allowFeed'] ? 1 : 0,
             'parent'        =>  empty($content['parent']) ? 0 : intval($content['parent']),
-            'ext_categories'=>  $this->build_ext_categories_content($content['category'])
+            'ext_categories'=>  $this->build_ext_metas_content($content['category'])
         );
 
 
@@ -360,7 +360,7 @@ class Widget_Abstract_Contents extends Widget_Abstract
             'allowPing'     =>  !empty($content['allowPing']) && 1 == $content['allowPing'] ? 1 : 0,
             'allowFeed'     =>  !empty($content['allowFeed']) && 1 == $content['allowFeed'] ? 1 : 0,
             'parent'        =>  empty($content['parent']) ? 0 : intval($content['parent']),
-            'ext_categories'=>  $this->build_ext_categories_content($content['category'])
+            'ext_categories'=>  $this->build_ext_metas_content($content['category'])
         );
         $preUpdateStruct2 = array(
             'title'         =>  empty($content['title']) ? NULL : htmlspecialchars($content['title']),

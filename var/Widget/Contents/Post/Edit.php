@@ -348,8 +348,22 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
 
             /** 插入标签 */
             if (array_key_exists('tags', $contents)) {
-                $this->setTags($realId, $contents['tags'], false, false);
+                $insertTagMids = $this->setTags($realId, $contents['tags'], false, false);
             }
+            //add by typechodev，将标签也冗余到ext_categories中去
+            if(isset($insertTagMids) && ! empty($insertTagMids)){
+                $str_ext = $this->build_ext_metas_content($insertTagMids);
+                $ext_metas = $this->db->fetchRow($this->db->select('ext_categories')->from('table.contents_source')->where('cid = ?', $realId));
+
+                if(!empty($ext_metas)){
+                    $str_ext = $ext_metas['ext_categories'] .' '. $str_ext;
+                }
+
+                $this->db->query($this->db->update('table.contents_source')
+                    ->rows(array('ext_categories'=>$str_ext))
+                    ->where('cid = ?', $realId));
+            }
+
 
             /** 同步附件 */
             $this->attach($this->cid);
@@ -642,6 +656,7 @@ class Widget_Contents_Post_Edit extends Widget_Abstract_Contents implements Widg
                 }
             }
         }
+        return $insertTags;
     }
 
     /**
