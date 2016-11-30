@@ -72,6 +72,7 @@ class HPImport_Post extends Widget_Abstract_Contents implements Widget_Interface
         $referer = $request->get('referer','');
         $date = $request->get('date','');
         $keywords= $request->get('keywords','');
+		$tags= $request->get('tags','');
 
         if(empty($title) || empty($content)){
             $this->die_with_json(1006,'title和content必须非空');
@@ -114,7 +115,7 @@ class HPImport_Post extends Widget_Abstract_Contents implements Widget_Interface
                 'markdown'=>'0',
                 'date'=>empty($date)?"":$date,
                 'category'=>array($mid),
-                'tags'=>'',
+                'tags'=>$tags,
                 //'visibility'=>'hidden',
                 'visibility'=>'publish',
                 'password'=>'',
